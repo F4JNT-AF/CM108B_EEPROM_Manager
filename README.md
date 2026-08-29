@@ -8,7 +8,7 @@ It can be used to:
 * Read and dump the EEPROM contents in a file.
 * Write configuration to the EEPROM, using either a:
 	* A configuration file from which the program will generate EEPROM content. (default example given in config.ini)
-	* A file containing raw EEPROM content.
+	* A file containing raw EEPROM content ("binary" or "bin").
 * Wipe the EEPROM.
 
 ### Required
@@ -21,15 +21,15 @@ Note: Even if I use Windows, this should work on Linux and MacOS.
 ### Burn config file to EEPROM
 	python CM108B_EEPROM_manager.py --burn_config config.ini
 
-### Burn hex file to EEPROM
-	python CM108B_EEPROM_manager.py --burn_hex contents.hex
+### Burn binary file to EEPROM
+	python CM108B_EEPROM_manager.py --burn_bin contents.bin
 
-### Read and dump EEPROM content to hex file
-	python CM108B_EEPROM_manager.py --read contents.hex
+### Read and dump EEPROM content to binary file
+	python CM108B_EEPROM_manager.py --read contents.bin
 
 :information_source: Windows may not take into account the changes, even if you unplug and reconnect the device. A reboot is advised.
 
-:information_source: The CM108B documentation is, on a lot of points, conflicting at best and not telling anything at worst. A lot of the intricacies are undocumented at the moment, I'll do my best to document what i can in the example .ini file.
+:information_source: The CM108B documentation is, on a lot of points, conflicting at best and not telling anything at worst and there was a lot of trial and error involved. The .ini file is documented with all known parameters. Other hidden options may lurk in the EE_OPTION2 register.
 
 
 ## [FR]
@@ -41,7 +41,7 @@ Ce programme peut être utilisé pour:
 * Lire et enregistrer le contenu de l'EEPROM dans un fichier.
 * Écrire une configuration dans l'EEPROM, à partir d'un:
 	* Fichier de configuration à partir duquel le programme générera le contenu brut de l'EEPROM. (config.ini donne un exemple)
-	* Fichier contenu brut de l'EEPROM.
+	* Fichier contenu brut ("binaire") de l'EEPROM.
 * Effacer l'EEPROM.
 
 ### Requis
@@ -54,12 +54,12 @@ Note: Même si j'utilise Windows, cela devrait marcher sur Linux et MacOS.
 ### Écrire un fichier de config dans l'EEPROM
 	python CM108B_EEPROM_manager.py --burn_config config.ini
 
-### Écrire un fichier hex dans l'EEPROM
-	python CM108B_EEPROM_manager.py --burn_hex contents.hex
+### Écrire un fichier binaire dans l'EEPROM
+	python CM108B_EEPROM_manager.py --burn_bin contents.bin
 
-### Lire et enregistrer le contenu de l'EEPROM dans un fichier hex
-	python CM108B_EEPROM_manager.py --read contents.hex
+### Lire et enregistrer le contenu de l'EEPROM dans un fichier binaire
+	python CM108B_EEPROM_manager.py --read contents.bin
 
 :information_source: Windows risque de ne pas prendre en compte les changements, même en déconnectant et reconnectant la carte. Il est conseillé de redémarrer.
 
-:information_source: La documentation du CM108B est au mieux contradictoire, au pire complètement silencieuse sur beaucoup de sujets. Pas mal de détails sont juste non-documentés pour le moment, je ferai de mon mieux afin de documenter ce que je trouve dans le fichier .ini d'exemple.
+:information_source: La documentation du CM108B est au mieux contradictoire, au pire complètement silencieuse sur beaucoup de sujets, inutile de dire qu'il y a eu pas mal de tatonnements et d'essais. Le fichier.ini documente toutes le paramètres connue (+1 caché). D'autres options cachées peuvent encore trainer dans le registre EE_OPTION2.

@@ -9,11 +9,12 @@ parser = argparse.ArgumentParser(epilog="RC1")
 
 # script arguments
 parser.add_argument("-bc","--burn_config", help="Generate and burn EEPROM data from config file.")
-parser.add_argument("-s","--save", help="Save generated hex file.")
-parser.add_argument("-bh","--burn_hex", help="Burn an hex file to EEPROM.")
-parser.add_argument("-r","--read", help="Read and dump EEPROM to a hex file.")
+parser.add_argument("-s","--save", help="Save generated binary file.")
+parser.add_argument("-bb","--burn_bin", help="Burn a binary file to EEPROM.")
+parser.add_argument("-r","--read", help="Read and dump EEPROM to a binary file.")
 parser.add_argument("-e","--erase", action='store_true', help="Erase device EEPROM.")
-parser.add_argument("-d","--device", help="Specify path to specific device.")
+parser.add_argument("-v","--vid", help="Target device VID. Defaults to 0x0D8C.")
+parser.add_argument("-p","--pid", help="Target device PID. Defaults to 0x0012.")
 parser.add_argument("-l","--list", action='store_true', help="List all CM108B devices.")
 
 args = parser.parse_args()
@@ -80,7 +81,7 @@ def hex_from_cfg(cfgfile):
 
     remote_wakeup = int(config['Audio_Config']['remote_wakeup'])
 
-    EE_OPTION2 = int(config['Audio_Config']['EE_OPTION2'])
+    i2s_output_disable = int(config['Audio_Config']['i2s_output_disable'])
 
     print("Generating hex file...")
     print("Generating device config...")
@@ -111,7 +112,7 @@ def hex_from_cfg(cfgfile):
 
     for index in range(13):
         if index >= serial_number_size:
-            serial_number_bytes.append(0xFF)
+            serial_number_bytes.append(0x00)
         else:
             serial_number_bytes.append(int.from_bytes(serial_number[index].encode('latin-1')))
 
@@ -135,7 +136,7 @@ def hex_from_cfg(cfgfile):
 
     for index in range(31):
         if index >= product_string_size:
-            product_bytes.append(0xFF)
+            product_bytes.append(0x00)
         else:
             product_bytes.append(int.from_bytes(product_string[index].encode('latin-1')))
 
@@ -159,7 +160,7 @@ def hex_from_cfg(cfgfile):
 
     for index in range(31):
         if index >= manufacturer_string_size:
-            manufacturer_bytes.append(0xFF)
+            manufacturer_bytes.append(0x00)
         else:
             manufacturer_bytes.append(int.from_bytes(manufacturer_string[index].encode('latin-1')))
 
@@ -176,7 +177,7 @@ def hex_from_cfg(cfgfile):
     if (audio_value_valid):
         word_value = AA_min_max_volume_valid + (ADC_min_max_volume_valid << 1) + (DAC_min_max_volume_valid << 2) + (twos_complement(ADC_initial_volume, 6) << 3) + (twos_complement(DAC_initial_volume, 7) << 9)
     else:
-        word_value = 0xFFFF
+        word_value = 0x0000
 
     EEPROM_content.append(word_value)
     print("0x2A: "+f"{word_value:#0{6}x}")
@@ -184,7 +185,7 @@ def hex_from_cfg(cfgfile):
     if (audio_value_valid):
         word_value = remote_wakeup + (hid_enable << 1) + (DAC_output_terminal << 2) + (MIC_boost << 3) + (MIC_PLL_adjust << 4) + (MIC_high_pass_filter << 5) + (total_power_control << 7) + (DAC_shutdown << 8) + (boost_mode << 9) + (twos_complement(AA_initial_volume, 5) << 11)
     else:
-        word_value = 0xFFFF
+        word_value = 0x0000
 
     EEPROM_content.append(word_value)
     print("0x2B: "+f"{word_value:#0{6}x}")
@@ -192,7 +193,7 @@ def hex_from_cfg(cfgfile):
     if (audio_value_valid and DAC_min_max_volume_valid):
         word_value = twos_complement(DAC_min_volume, 8) << 8
     else:
-        word_value = 0xFFFF
+        word_value = 0x0000
     
     EEPROM_content.append(word_value)
     print("0x2C: "+f"{word_value:#0{6}x}")
@@ -200,7 +201,7 @@ def hex_from_cfg(cfgfile):
     if (audio_value_valid and DAC_min_max_volume_valid):
         word_value = twos_complement(DAC_max_volume, 8) << 8
     else:
-        word_value = 0xFFFF
+        word_value = 0x0000
 
     EEPROM_content.append(word_value)
     print("0x2D: "+f"{word_value:#0{6}x}")
@@ -208,7 +209,7 @@ def hex_from_cfg(cfgfile):
     if (audio_value_valid and ADC_min_max_volume_valid):
         word_value = twos_complement(ADC_min_volume, 8) << 8
     else:
-        word_value = 0xFFFF
+        word_value = 0x0000
 
     EEPROM_content.append(word_value)
     print("0x2E: "+f"{word_value:#0{6}x}")
@@ -216,7 +217,7 @@ def hex_from_cfg(cfgfile):
     if (audio_value_valid and ADC_min_max_volume_valid):
         word_value = twos_complement(ADC_max_volume, 8) << 8
     else:
-        word_value = 0xFFFF
+        word_value = 0x0000
 
     EEPROM_content.append(word_value)
     print("0x2F: "+f"{word_value:#0{6}x}")
@@ -224,7 +225,7 @@ def hex_from_cfg(cfgfile):
     if (audio_value_valid and AA_min_max_volume_valid):
         word_value = twos_complement(AA_min_volume, 8) << 8
     else:
-        word_value = 0xFFFF
+        word_value = 0x0000
 
     EEPROM_content.append(word_value)
     print("0x30: "+f"{word_value:#0{6}x}")
@@ -232,13 +233,13 @@ def hex_from_cfg(cfgfile):
     if (audio_value_valid and AA_min_max_volume_valid):
         word_value = twos_complement(AA_max_volume, 8) << 8
     else:
-        word_value = 0xFFFF
+        word_value = 0x0000
 
     EEPROM_content.append(word_value)
     print("0x31: "+f"{word_value:#0{6}x}")
 
     #EE_OPTION2 register (0x32)
-    word_value = EE_OPTION2
+    word_value = i2s_output_disable << 1
     EEPROM_content.append(word_value)
     print("0x32: "+f"{word_value:#0{6}x}")
 
@@ -247,15 +248,17 @@ def hex_from_cfg(cfgfile):
     if args.save is not None:
         with open(args.save, "wb") as file:
             for data in EEPROM_content:
-                file.write(bytes.fromhex(hex(data)[2:].zfill(4)))
-
+                data_low = data&0xFF
+                data_high = (data >> 8) & 0xFF
+                file.write(data_low.to_bytes())
+                file.write(data_high.to_bytes())
         print("hex file saved to "+args.save+".")
     
     burn_eeprom(EEPROM_content)
 
 def open_device():
-    if args.device is not None:
-        CM108_USB.open_path(args.device)
+    if args.vid is not None and args.pid is not None:
+        CM108_USB.open(int(args.vid, 16), int(args.pid, 16))
     else:
         print("No device argument. Using first CM108B device.")
         CM108_USB.open(0x0D8C, 0x0012)
@@ -293,8 +296,8 @@ def read_eeprom():
         write_16(READ_COMMAND, ad)
 
         data = read_16()
-        EEPROM_content.append((data >> 8) & 0xFF)
         EEPROM_content.append(data&0xFF)
+        EEPROM_content.append((data >> 8) & 0xFF)
         print(f"{ad:#0{4}x}"+": "+f"{data:#0{6}x}")
         
     print("EEPROM read.")
@@ -325,7 +328,7 @@ if args.burn_config is not None:
 elif args.burn_hex is not None:
     if os.path.getsize(args.burn_hex) == 102:
         with open(args.burn_hex, "rb") as file:
-            while (data := file.read(2)):
+            while (data := file.read(1)):
                 EEPROM_content.append(int.from_bytes(data))
         burn_eeprom(EEPROM_content)
     else:
