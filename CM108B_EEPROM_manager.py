@@ -175,7 +175,7 @@ def hex_from_cfg(cfgfile):
     #audio options (0x2A to 0x31) - note: volumes are 2's complement
 
     if (audio_value_valid):
-        word_value = AA_min_max_volume_valid + (ADC_min_max_volume_valid << 1) + (DAC_min_max_volume_valid << 2) + (twos_complement(ADC_initial_volume, 6) << 3) + (twos_complement(DAC_initial_volume, 7) << 9)
+        word_value = AA_min_max_volume_valid + (ADC_min_max_volume_valid << 1) + (DAC_min_max_volume_valid << 2) + ((23 - ADC_initial_volume) << 3) + ((0 - DAC_initial_volume) << 9)
     else:
         word_value = 0x0000
 
@@ -183,7 +183,7 @@ def hex_from_cfg(cfgfile):
     print("0x2A: "+f"{word_value:#0{6}x}")
 
     if (audio_value_valid):
-        word_value = remote_wakeup + (hid_enable << 1) + (DAC_output_terminal << 2) + (MIC_boost << 3) + (MIC_PLL_adjust << 4) + (MIC_high_pass_filter << 5) + (total_power_control << 7) + (DAC_shutdown << 8) + (boost_mode << 9) + (twos_complement(AA_initial_volume, 5) << 11)
+        word_value = remote_wakeup + (hid_enable << 1) + (DAC_output_terminal << 2) + (MIC_boost << 3) + (MIC_PLL_adjust << 4) + (MIC_high_pass_filter << 5) + (total_power_control << 7) + (DAC_shutdown << 8) + (boost_mode << 9) + ((8 - AA_initial_volume) << 11)
     else:
         word_value = 0x0000
 
