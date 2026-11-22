@@ -83,7 +83,7 @@ def hex_from_cfg(cfgfile):
 
     i2s_output_disable = int(config['Audio_Config']['i2s_output_disable'])
 
-    print("Generating hex file...")
+    print("Generating bin file...")
     print("Generating device config...")
 
     #calcul 0x00
@@ -243,7 +243,7 @@ def hex_from_cfg(cfgfile):
     EEPROM_content.append(word_value)
     print("0x32: "+f"{word_value:#0{6}x}")
 
-    print("hex file generated.")
+    print("bin file generated.")
 
     if args.save is not None:
         with open(args.save, "wb") as file:
@@ -252,7 +252,7 @@ def hex_from_cfg(cfgfile):
                 data_high = (data >> 8) & 0xFF
                 file.write(data_low.to_bytes())
                 file.write(data_high.to_bytes())
-        print("hex file saved to "+args.save+".")
+        print("bin file saved to "+args.save+".")
     
     burn_eeprom(EEPROM_content)
 
@@ -325,9 +325,9 @@ def list_devices():
 
 if args.burn_config is not None:
     hex_from_cfg(args.burn_config)
-elif args.burn_hex is not None:
-    if os.path.getsize(args.burn_hex) == 102:
-        with open(args.burn_hex, "rb") as file:
+elif args.burn_bin is not None:
+    if os.path.getsize(args.burn_bin) == 102:
+        with open(args.burn_bin, "rb") as file:
             while (data := file.read(1)):
                 EEPROM_content.append(int.from_bytes(data))
         burn_eeprom(EEPROM_content)
